@@ -1,0 +1,66 @@
+나는 유니티로 여러명이 다른 클라이언트에서 플레이할 수 있는 멀티 게임을 만들고 있다.
+플레이어에 관한 정보를 저장하기 위해 DB를 사용하고 있다.
+DB의 user_info 테이블에는 플레이어의 아이디와 비밀번호를 저장하는 U_Name과 U_Password가 있고, 같은 행에 플레이어의 UserId를 저장하는 U_id가 있다.
+플레이어는 로그인UI를 통해 id와 password를 입력하고, DB의 U_Name과 U_Password와 비교하여 일치하면, U_id를 반환받고 로그인에 성공한다.
+로그인에 성공하면 LobbyUI가 열리며, LobbyUI의 StartWithServer 버튼을 누르면,
+Mirror를 활용해서 OnlineScene으로 넘어간다.
+OnlineScene으로 넘어가면 RoomPlayer가 생성되는데, 이 RoomPlayer는 uid라는 속성을 가지고 있다. 
+RoomPlayer의 uid를 로그인 성공시 받은 U_id값으로 바꾸고 싶다.
+그러나 클라에서 단순히 uid를 바꾸게 되면 한 클라에서 생성되는 모든 RoomPlayer 오브젝트는 모두 같은 uid를 가지게 된다.
+그래서 각 클라에서 받은 U_id값을 서버로 전송하여 ConnetionToClient 값과 함께 Dictionary로 저장하기로 했다.
+그리고 RoomPlayer를 생성할 때, ConnectionToClient로 Dictionary의 uid값을 가져와 RoomPlayer의 uid값을 수정하려고 했다.
+U_id를 DB에서 받는 것 까지는 성공했지만, U_id를 서버로 보내서 Dictionary에 저장하는 것과 Dictionary에 저장된 값으로 RoomPlayer의 uid를 수정하는 것에 실패했다.
+
+
+NetworkRoomManager의 OnServerAddPlayer(NetworkConnectionToClient conn)
+
+~
+OnRoomServerCreateRoomPlayer(conn) 으로 RoomPlayer 생성한다. (OnRoomServerCreateRoomPlayer가 override되지 않았으면 null을 반환함)
+RoomPlayer가 null이 면 알아서 RoomPlayer 생성한다.
+
+NetworkServer.AddPlayerForConnection(conn, newRoomGameObject); 해준다.
+여기서 RoomPlayer가 Room에 등장하는거 아닐까?
+
+그러면 base.OnServerAddPlayer 다음에 RoomPlayer의 uid를 바꿔주면 되나?
+
+아직 뭐가 안되는지 모른다
+
+Dictionary에 uid가 올라갔는가? <-이거 됐던거 같은데 아닌가봐. uid가 동일했어.
+그리고 클라에서 시작하면 뭔가 알 수 없는 에러가 생김.
+
+Dictionary의 uid를 받았는가?
+
+
+그냥 로그인 할때 Server에 저장하면 안됨?
+
+어 그게 외않돼냐면 로그인 ~로비 까지는 통신이 일어나지 않기 때문임.
+로비화면 까지 오프라인 상태임.
+Server와 연결하려면 일단 Room입장해서 통신이 일어나야 함.
+그런데 그러면 uid를 미리 Dic에 넘겨 놓을 수 없잖어.
+
+
+NullReferenceException: Object reference not set to an instance of an object
+MyNetworkRoomPlayer.OnStartClient () (at <cdf95155ac9e4884b51bb22903c5eb1d>:0)
+Mirror.NetworkIdentity.OnStartClient () (at <599092fd5705435faac7a5200fff6720>:0)
+UnityEngine.Debug:LogException(Exception, Object)
+Mirror.NetworkIdentity:OnStartClient()
+Mirror.NetworkClient:InvokeIdentityCallbacks(NetworkIdentity)
+Mirror.NetworkClient:BootstrapIdentity(NetworkIdentity)
+Mirror.NetworkClient:OnHostClientSpawn(SpawnMessage)
+Mirror.<>c__DisplayClass59_0`1:<RegisterHandler>g__HandlerWrapped|0(NetworkConnection, SpawnMessage)
+Mirror.<>c__DisplayClass9_0`2:<WrapHandler>g__Wrapped|0(NetworkConnection, SpawnMessage, Int32)
+Mirror.<>c__DisplayClass8_0`2:<WrapHandler>b__0(NetworkConnection, NetworkReader, Int32)
+Mirror.NetworkClient:UnpackAndInvoke(NetworkReader, Int32)
+Mirror.NetworkClient:OnTransportData(ArraySegment`1, Int32)
+Mirror.LocalConnectionToServer:Update()
+Mirror.NetworkClient:NetworkLateUpdate()
+Mirror.NetworkLoop:NetworkLateUpdate()
+
+
+uid를 넘길 필요가 있는가?
+
+Room에서 표시되어야 하는 것은 무엇인가?
+플레이어 프로필? 플레이어 이름? 아직 없는 거 잖아.
+
+그냥 게임 로직부터 만들까?
+집가고 싶다

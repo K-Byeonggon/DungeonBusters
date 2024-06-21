@@ -1,4 +1,5 @@
 using Mirror;
+using Org.BouncyCastle.Asn1.X509;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,9 +21,11 @@ public class MyNetworkRoomManager : NetworkRoomManager
         }
     }
 
+    public Dictionary<NetworkConnectionToClient, int> clientUIDs = new Dictionary<NetworkConnectionToClient, int>();
+
+
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
-
         base.OnServerAddPlayer(conn);
     }
 
