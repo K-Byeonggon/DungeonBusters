@@ -425,6 +425,13 @@ public class NewGameManager : NetworkBehaviour
 
     #region 보석 잃는 로직
 
+    public void PutJewelsInBonus()
+    {
+        //1. 가장 작은 카드를 낸 플레이어들의 NetId 구하기
+        List<int> losePlayerNetIds = GetMinCardPlayerNetIds();
+
+        //2. 
+    }
 
 
     #endregion
