@@ -578,23 +578,11 @@ public class NewGameManager : NetworkBehaviour
         newBonus[jewelIndex]--;
         BonusJewels = newBonus;
 
-        //1. Rpc로 바뀐 값들 각 클라에 적용
-        RpcAddBonusProcessToPlayer(playerNetId, jewelIndex);
-
         //2. 선택 팝업을 띄울 플레이어 index 바꾸기
         _currentSelectBonusPlayerIndex = (_currentSelectBonusPlayerIndex + 1) % WinPlayerIds.Count;
 
-
-        //3. 보너스 없으면 Stage종료, 있으면 바뀐 플레이어 index로 팝업 띄우기.
-        bool isBonusEmpty = new HashSet<int>(BonusJewels).SetEquals(new List<int>() { 0, 0, 0 });
-        if (isBonusEmpty)
-        {
-            ChangeState(GameState.EndStage);
-        }
-        else
-        {
-            RpcSetUIBonusSelect(WinPlayerIds[_currentSelectBonusPlayerIndex]);
-        }
+        //1. Rpc로 바뀐 값들 각 클라에 적용
+        RpcAddBonusProcessToPlayer(playerNetId, jewelIndex);
 
     }
 
@@ -611,15 +599,12 @@ public class NewGameManager : NetworkBehaviour
         BattleUIManager.Instance.RequestUnsetGetBonus();
 
         //3. Cmd2부르기
-        //CmdAddBonusProcess2();
+        CmdAddBonusProcess2();
     }
 
     [Command(requiresAuthority = false)]
     private void CmdAddBonusProcess2()
     {
-        //2. 선택 팝업을 띄울 플레이어 index 바꾸기
-        _currentSelectBonusPlayerIndex = (_currentSelectBonusPlayerIndex + 1) % WinPlayerIds.Count;
-        
 
         //3. 보너스 없으면 Stage종료, 있으면 바뀐 플레이어 index로 팝업 띄우기.
         bool isBonusEmpty = new HashSet<int>(BonusJewels).SetEquals(new List<int>() { 0, 0, 0 });
