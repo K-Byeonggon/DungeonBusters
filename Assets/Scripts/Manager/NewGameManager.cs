@@ -569,6 +569,76 @@ public class NewGameManager : NetworkBehaviour
     }
 
     [Command(requiresAuthority = false)]
+    public void CmdAddBonusProcess_OnClick(int playerNetId, int jewelIndex)
+    {
+        //1. NewGameManager의 BonusJewel 차감
+        List<int> newBonus = new List<int>();
+        //그냥 newBonus에 BonusJewels를 대입하면 참조 복사가 일어나 값 변경시 hook이 발생하지 않음.
+        BonusJewels.ForEach(item => newBonus.Add(item));
+        newBonus[jewelIndex]--;
+        BonusJewels = newBonus;
+
+        //1. Rpc로 바뀐 값들 각 클라에 적용
+        RpcAddBonusProcessToPlayer(playerNetId, jewelIndex);
+
+        //2. 선택 팝업을 띄울 플레이어 index 바꾸기
+        _currentSelectBonusPlayerIndex = (_currentSelectBonusPlayerIndex + 1) % WinPlayerIds.Count;
+
+
+        //3. 보너스 없으면 Stage종료, 있으면 바뀐 플레이어 index로 팝업 띄우기.
+        bool isBonusEmpty = new HashSet<int>(BonusJewels).SetEquals(new List<int>() { 0, 0, 0 });
+        if (isBonusEmpty)
+        {
+            ChangeState(GameState.EndStage);
+        }
+        else
+        {
+            RpcSetUIBonusSelect(WinPlayerIds[_currentSelectBonusPlayerIndex]);
+        }
+
+    }
+
+    [ClientRpc]
+    private void RpcAddBonusProcessToPlayer(int playerNetId, int jewelIndex)
+    {
+        //1. NetId플레이어에 Jewel 더하기
+        MyPlayer player = GetPlayerFromNetId(playerNetId);
+        List<int> newJewels = player.Jewels;
+        newJewels[jewelIndex]++;
+        player.Jewels = newJewels;
+
+        //2. 모든 클라의 팝업 UI 꺼주기
+        BattleUIManager.Instance.RequestUnsetGetBonus();
+
+        //3. Cmd2부르기
+        //CmdAddBonusProcess2();
+    }
+
+    [Command(requiresAuthority = false)]
+    private void CmdAddBonusProcess2()
+    {
+        //2. 선택 팝업을 띄울 플레이어 index 바꾸기
+        _currentSelectBonusPlayerIndex = (_currentSelectBonusPlayerIndex + 1) % WinPlayerIds.Count;
+        
+
+        //3. 보너스 없으면 Stage종료, 있으면 바뀐 플레이어 index로 팝업 띄우기.
+        bool isBonusEmpty = new HashSet<int>(BonusJewels).SetEquals(new List<int>() { 0, 0, 0 });
+        if (isBonusEmpty)
+        {
+            ChangeState(GameState.EndStage);
+        }
+        else
+        {
+            RpcSetUIBonusSelect(WinPlayerIds[_currentSelectBonusPlayerIndex]);
+        }
+    }
+
+
+
+
+
+    //구버전 
+    [Command(requiresAuthority = false)]
     public void CmdSubBonusJewel_OnClick(int playerNetId, int jewelIndex)
     {
         List<int> newBonus = new List<int>();

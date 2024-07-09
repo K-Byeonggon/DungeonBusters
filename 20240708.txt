@@ -34,3 +34,18 @@ RpcSetUIBonusSelect에서 BattleUIManager.Instance.RequestUpdateGetBonus 호출
 
 아무튼 대충 해결방법이 생각났는데, 보석 빼는거랑 UI띄우는걸 분리해서 따로 실행되게 하지말고
 한꺼번에 처리하면 보석이 바뀐뒤에 UI가 뜨지 않을까 싶다.
+
+
+cmd가 2개인 것과 별개로
+안에서는 Rpc가 3개 불리고 있는데, 비동기 처리되는 부분은 Rpc이므로
+Rpc를 한꺼번에 처리하게 만들어야 겠다.
+
+Rpc는 1. 플레이어에게 Jewel을 더하는 RpcAddJewelToPlayer
+2. 팝업창 닫는 RpcUnsetUIGetBonus
+3. UI에 새로운 값 받아서 다시 띄우는 RpcSetUIBonusSelect
+이렇게 3개가 있다.
+
+음 결국 Rpc가 하나 더생기는데 어떻게 합칠 방법이 없나
+Cmd1 -> Cmd1에서 부른 Rpc1 -> Rpc1에서 부른 Cmd2 -> Cmd2에서 부른 Rpc2 이러면 될라나?
+
+
